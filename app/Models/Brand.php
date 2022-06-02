@@ -21,12 +21,32 @@ class Brand extends CoreModel
     private $name;
 
     /**
+     * Get the value of name
+     *
+     * @return  string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set the value of name
+     *
+     * @param  string  $name
+     */
+    public function setName(string $name)
+    {
+        $this->name = $name;
+    }
+
+    /**
      * Méthode permettant de récupérer un enregistrement de la table Brand en fonction d'un id donné
      *
      * @param int $brandId ID de la marque
      * @return Brand
      */
-    public function find($brandId)
+    public static function find($brandId)
     {
         // se connecter à la BDD
         $pdo = Database::getPDO();
@@ -41,7 +61,7 @@ class Brand extends CoreModel
         $pdoStatement = $pdo->query($sql);
 
         // un seul résultat => fetchObject
-        $brand = $pdoStatement->fetchObject('App\Models\Brand');
+        $brand = $pdoStatement->fetchObject(self::class);
 
         // retourner le résultat
         return $brand;
@@ -52,12 +72,12 @@ class Brand extends CoreModel
      *
      * @return Brand[]
      */
-    public function findAll()
+    public static function findAll()
     {
         $pdo = Database::getPDO();
         $sql = 'SELECT * FROM `brand`';
         $pdoStatement = $pdo->query($sql);
-        $results = $pdoStatement->fetchAll(PDO::FETCH_CLASS, 'App\Models\Brand');
+        $results = $pdoStatement->fetchAll(PDO::FETCH_CLASS, self::class);
 
         return $results;
     }
@@ -121,25 +141,5 @@ class Brand extends CoreModel
 
         // On retourne VRAI, si au moins une ligne ajoutée
         return ($updatedRows > 0);
-    }
-
-    /**
-     * Get the value of name
-     *
-     * @return  string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * Set the value of name
-     *
-     * @param  string  $name
-     */
-    public function setName(string $name)
-    {
-        $this->name = $name;
     }
 }

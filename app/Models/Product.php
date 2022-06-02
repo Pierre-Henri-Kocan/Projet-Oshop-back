@@ -50,50 +50,6 @@ class Product extends CoreModel
     private $type_id;
 
     /**
-     * Méthode permettant de récupérer un enregistrement de la table Product en fonction d'un id donné
-     *
-     * @param int $productId ID du produit
-     * @return Product
-     */
-    public function find($productId)
-    {
-        // récupérer un objet PDO = connexion à la BDD
-        $pdo = Database::getPDO();
-
-        // on écrit la requête SQL pour récupérer le produit
-        $sql = '
-            SELECT *
-            FROM product
-            WHERE id = ' . $productId;
-
-        // query ? exec ?
-        // On fait de la LECTURE = une récupration => query()
-        // si on avait fait une modification, suppression, ou un ajout => exec
-        $pdoStatement = $pdo->query($sql);
-
-        // fetchObject() pour récupérer un seul résultat
-        // si j'en avais eu plusieurs => fetchAll
-        $result = $pdoStatement->fetchObject('App\Models\Product');
-
-        return $result;
-    }
-
-    /**
-     * Méthode permettant de récupérer tous les enregistrements de la table product
-     *
-     * @return Product[]
-     */
-    public function findAll()
-    {
-        $pdo = Database::getPDO();
-        $sql = 'SELECT * FROM `product`';
-        $pdoStatement = $pdo->query($sql);
-        $results = $pdoStatement->fetchAll(PDO::FETCH_CLASS, 'App\Models\Product');
-
-        return $results;
-    }
-
-    /**
      * Get the value of name
      *
      * @return  string
@@ -271,5 +227,75 @@ class Product extends CoreModel
     public function setTypeId(int $type_id)
     {
         $this->type_id = $type_id;
+    }
+
+    /**
+     * Méthode permettant de récupérer un enregistrement de la table Product en fonction d'un id donné
+     *
+     * @param int $productId ID du produit
+     * @return Product
+     */
+    public static function find($productId)
+    {
+        // récupérer un objet PDO = connexion à la BDD
+        $pdo = Database::getPDO();
+
+        // on écrit la requête SQL pour récupérer le produit
+        $sql = '
+            SELECT *
+            FROM product
+            WHERE id = ' . $productId;
+
+        // query ? exec ?
+        // On fait de la LECTURE = une récupration => query()
+        // si on avait fait une modification, suppression, ou un ajout => exec
+        $pdoStatement = $pdo->query($sql);
+
+        // fetchObject() pour récupérer un seul résultat
+        // si j'en avais eu plusieurs => fetchAll
+        $result = $pdoStatement->fetchObject(self::class);
+
+        return $result;
+    }
+
+    /**
+     * Méthode permettant de récupérer tous les enregistrements de la table product
+     *
+     * @return Product[]
+     */
+    public static function findAll()
+    {
+        $pdo = Database::getPDO();
+        $sql = 'SELECT * FROM `product`';
+        $pdoStatement = $pdo->query($sql);
+        $results = $pdoStatement->fetchAll(PDO::FETCH_CLASS, self::class);
+
+        return $results;
+    }
+
+    /**
+     * Récupérer les X premiers produits dispo
+     *
+     * @param int $limit Nombre max de résultat attendu (> 1 | par défaut 5)
+     *
+     * @return Product[]
+     */
+    public static function findWithLimit(int $limit = 5): array
+    {
+        if ($limit < 1) {
+            $limit = 1;
+        }
+
+        $pdo = Database::getPDO();
+        $sql = "
+            SELECT *
+            FROM product
+            WHERE status = 1
+            LIMIT $limit
+        ";
+        $pdoStatement = $pdo->query($sql);
+        $results = $pdoStatement->fetchAll(PDO::FETCH_CLASS, self::class);
+
+        return $results;
     }
 }

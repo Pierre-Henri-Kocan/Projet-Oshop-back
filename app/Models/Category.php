@@ -99,7 +99,7 @@ class Category extends CoreModel
      * @param int $categoryId ID de la catégorie
      * @return Category
      */
-    public function find($categoryId)
+    public static function find($categoryId)
     {
         // se connecter à la BDD
         $pdo = Database::getPDO();
@@ -111,7 +111,7 @@ class Category extends CoreModel
         $pdoStatement = $pdo->query($sql);
 
         // un seul résultat => fetchObject
-        $category = $pdoStatement->fetchObject('App\Models\Category');
+        $category = $pdoStatement->fetchObject(self::class);
 
         // retourner le résultat
         return $category;
@@ -122,32 +122,39 @@ class Category extends CoreModel
      *
      * @return Category[]
      */
-    public function findAll()
+    public static function findAll()
     {
         $pdo = Database::getPDO();
         $sql = 'SELECT * FROM `category`';
         $pdoStatement = $pdo->query($sql);
-        $results = $pdoStatement->fetchAll(PDO::FETCH_CLASS, 'App\Models\Category');
+        $results = $pdoStatement->fetchAll(PDO::FETCH_CLASS, self::class);
 
         return $results;
     }
 
     /**
-     * Récupérer les 5 catégories mises en avant sur la home
+     * Récupérer les X premières catégories avec un un positionnement sur la home page
+     *
+     * @param int $limit Nombre max de résultat attendu (> 1 | par défaut 5)
      *
      * @return Category[]
      */
-    public function findAllHomepage()
+    public static function findWithLimit(int $limit = 5): array
     {
+        if ($limit < 1) {
+            $limit = 1;
+        }
+
         $pdo = Database::getPDO();
-        $sql = '
+        $sql = "
             SELECT *
             FROM category
             WHERE home_order > 0
             ORDER BY home_order ASC
-        ';
+            LIMIT $limit
+        ";
         $pdoStatement = $pdo->query($sql);
-        $categories = $pdoStatement->fetchAll(PDO::FETCH_CLASS, 'App\Models\Category');
+        $categories = $pdoStatement->fetchAll(PDO::FETCH_CLASS, self::class);
 
         return $categories;
     }
