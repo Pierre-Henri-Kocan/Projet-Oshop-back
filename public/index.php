@@ -6,7 +6,13 @@
 // inclusion des dépendances via Composer
 // autoload.php permet de charger d'un coup toutes les dépendances installées avec composer
 // mais aussi d'activer le chargement automatique des classes (convention PSR-4)
+
 require_once '../vendor/autoload.php';
+
+use App\Controllers\CategoryController;
+use App\Controllers\ErrorController;
+use App\Controllers\MainController;
+use App\Controllers\ProductController;
 
 /* ------------
 --- ROUTAGE ---
@@ -39,17 +45,57 @@ if (array_key_exists('BASE_URI', $_SERVER)) {
 //      - le nom du controller contenant la méthode
 // 4. Le nom de la route : pour identifier la route, on va suivre une convention
 //      - "NomDuController-NomDeLaMéthode"
-//      - ainsi pour la route /, méthode "home" du MainController => "main-home"
+//      - ainsi pour la route /, méthode "home" du MainController => "Main-home"
+
 $router->map(
     'GET',
     '/',
     [
         'method' => 'home',
-        'controller' => '\App\Controllers\MainController' // On indique le FQCN de la classe
+        'controller' => MainController::class
     ],
-    'main-home'
+    'Main-home'
 );
 
+$router->map(
+    'GET',
+    '/categories',
+    [
+        'method' => 'list',
+        'controller' => CategoryController::class
+    ],
+    'Category-list'
+);
+
+$router->map(
+    'GET',
+    '/categories/add',
+    [
+        'method' => 'add',
+        'controller' => CategoryController::class
+    ],
+    'Category-add'
+);
+
+$router->map(
+    'GET',
+    '/products',
+    [
+        'method' => 'list',
+        'controller' => ProductController::class
+    ],
+    'Product-list'
+);
+
+$router->map(
+    'GET',
+    '/products/add',
+    [
+        'method' => 'add',
+        'controller' => ProductController::class
+    ],
+    'Product-add'
+);
 
 /* -------------
 --- DISPATCH ---
@@ -62,6 +108,6 @@ $match = $router->match();
 // On délègue à une librairie externe : https://packagist.org/packages/benoclock/alto-dispatcher
 // 1er argument : la variable $match retournée par AltoRouter
 // 2e argument : le "target" (controller & méthode) pour afficher la page 404
-$dispatcher = new Dispatcher($match, '\App\Controllers\ErrorController::err404');
+$dispatcher = new Dispatcher($match, ErrorController::class . '::err404');
 // Une fois le "dispatcher" configuré, on lance le dispatch qui va exécuter la méthode du controller
 $dispatcher->dispatch();

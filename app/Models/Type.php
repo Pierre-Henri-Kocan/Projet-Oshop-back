@@ -21,45 +21,6 @@ class Type extends CoreModel
     private $name;
 
     /**
-     * Méthode permettant de récupérer un enregistrement de la table Type en fonction d'un id donné
-     *
-     * @param int $typeId ID du type
-     * @return Type
-     */
-    public function find($typeId)
-    {
-        // se connecter à la BDD
-        $pdo = Database::getPDO();
-
-        // écrire notre requête
-        $sql = 'SELECT * FROM `type` WHERE `id` =' . $typeId;
-
-        // exécuter notre requête
-        $pdoStatement = $pdo->query($sql);
-
-        // un seul résultat => fetchObject
-        $type = $pdoStatement->fetchObject('App\Models\Type');
-
-        // retourner le résultat
-        return $type;
-    }
-
-    /**
-     * Méthode permettant de récupérer tous les enregistrements de la table type
-     *
-     * @return Type[]
-     */
-    public function findAll()
-    {
-        $pdo = Database::getPDO();
-        $sql = 'SELECT * FROM `type`';
-        $pdoStatement = $pdo->query($sql);
-        $results = $pdoStatement->fetchAll(PDO::FETCH_CLASS, 'App\Models\Type');
-
-        return $results;
-    }
-
-    /**
      * Get the value of name
      *
      * @return  string
@@ -77,5 +38,44 @@ class Type extends CoreModel
     public function setName(string $name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * Méthode permettant de récupérer un enregistrement de la table Type en fonction d'un id donné
+     *
+     * @param int $typeId ID du type
+     * @return Type
+     */
+    public static function find($typeId)
+    {
+        // se connecter à la BDD
+        $pdo = Database::getPDO();
+
+        // écrire notre requête
+        $sql = 'SELECT * FROM `type` WHERE `id` =' . $typeId;
+
+        // exécuter notre requête
+        $pdoStatement = $pdo->query($sql);
+
+        // un seul résultat => fetchObject
+        $type = $pdoStatement->fetchObject(self::class);
+
+        // retourner le résultat
+        return $type;
+    }
+
+    /**
+     * Méthode permettant de récupérer tous les enregistrements de la table type
+     *
+     * @return Type[]
+     */
+    public static function findAll()
+    {
+        $pdo = Database::getPDO();
+        $sql = 'SELECT * FROM `type`';
+        $pdoStatement = $pdo->query($sql);
+        $results = $pdoStatement->fetchAll(PDO::FETCH_CLASS, self::class);
+
+        return $results;
     }
 }
