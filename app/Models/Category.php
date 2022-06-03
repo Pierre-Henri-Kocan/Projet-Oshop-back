@@ -7,7 +7,6 @@ use PDO;
 
 class Category extends CoreModel
 {
-
     /**
      * @var string
      */
@@ -157,5 +156,52 @@ class Category extends CoreModel
         $categories = $pdoStatement->fetchAll(PDO::FETCH_CLASS, self::class);
 
         return $categories;
+    }
+
+    /**
+     * Méthode permettant d'ajouter un enregistrement dans la table category
+     * L'objet courant doit contenir toutes les données à ajouter : 1 propriété => 1 colonne dans la table
+     *
+     * @return bool
+     */
+    public function insert(): bool
+    {
+        // Récupération de l'objet PDO représentant la connexion à la DB
+        $pdo = Database::getPDO();
+
+        // Ecriture de la requête INSERT INTO
+        // $sql = "
+        //     INSERT INTO `category` (name, subtitle, picture)
+        //     VALUES (?, ?, ?)
+        // ";
+
+        // $pdoStatement = $pdo->prepare($sql);
+        // $pdoStatement->bindValue(1, $this->name);
+        // $pdoStatement->bindValue(2, $this->subtitle);
+        // $pdoStatement->bindValue(3, $this->picture);
+
+        // On prépare notre requête SQL en lui mettant des espèces de points
+        // d'ancrage qu'on va vouloir remplacer par des valeurs
+        $sql = "
+            INSERT INTO `category` (name, subtitle, picture)
+            VALUES (:name, :subtitle, :picture)
+        ";
+
+        // PdoStatement va venir binder les valeurs avec les points d'ancrage dans
+        // la requete préparé au dessus, en faisant tout les traitement nécessaires
+        // pour sécuriser notre requete contre les injections SQL
+        $pdoStatement = $pdo->prepare($sql);
+        $pdoStatement->bindValue(':name', $this->name);
+        $pdoStatement->bindValue(':subtitle', $this->subtitle);
+        $pdoStatement->bindValue(':picture', $this->picture);
+
+        if ($pdoStatement->execute()) {
+            // Alors on récupère l'id auto-incrémenté généré par MySQL
+            $this->id = $pdo->lastInsertId();
+
+            return true;
+        }
+
+        return false;
     }
 }

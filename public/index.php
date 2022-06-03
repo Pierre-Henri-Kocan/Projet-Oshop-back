@@ -78,6 +78,16 @@ $router->map(
 );
 
 $router->map(
+    'POST',
+    '/categories/add',
+    [
+        'method' => 'create',
+        'controller' => CategoryController::class
+    ],
+    'Category-create'
+);
+
+$router->map(
     'GET',
     '/products',
     [
@@ -95,6 +105,16 @@ $router->map(
         'controller' => ProductController::class
     ],
     'Product-add'
+);
+
+$router->map(
+    'POST',
+    '/products/add',
+    [
+        'method' => 'create',
+        'controller' => ProductController::class
+    ],
+    'Product-create'
 );
 
 /* -------------

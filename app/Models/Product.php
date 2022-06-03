@@ -298,4 +298,49 @@ class Product extends CoreModel
 
         return $results;
     }
+
+    /**
+     * Méthode permettant d'ajouter un enregistrement dans la table product
+     * L'objet courant doit contenir toutes les données à ajouter : 1 propriété => 1 colonne dans la table
+     *
+     * @return bool
+     */
+    public function insert(): bool
+    {
+        // Récupération de l'objet PDO représentant la connexion à la DB
+        $pdo = Database::getPDO();
+
+        $matchingArray = [
+            'name' => $this->name,
+            'description' => $this->description,
+            'picture' => $this->picture,
+            'price' => $this->price,
+            'rate' => $this->rate,
+            'status' => $this->status,
+            'brand_id' => $this->brand_id,
+            'category_id' => $this->category_id,
+            'type_id' => $this->type_id,
+        ];
+
+        // On prépare notre requête SQL en lui mettant des espèces de points
+        // d'ancrage qu'on va vouloir remplacer par des valeurs
+        $sql = "INSERT INTO `product` (" . implode(', ', array_keys($matchingArray)) . ")
+                VALUES (:" . implode(', :', array_keys($matchingArray)) . ")";
+
+        // PdoStatement va venir binder les valeurs avec les points d'ancrage dans
+        // la requete préparé au dessus, en faisant tout les traitement nécessaires
+        // pour sécuriser notre requete contre les injections SQL
+        $pdoStatement = $pdo->prepare($sql);
+
+        $isInsert = $pdoStatement->execute($matchingArray);
+
+        if ($isInsert) {
+            // Alors on récupère l'id auto-incrémenté généré par MySQL
+            $this->id = $pdo->lastInsertId();
+
+            return true;
+        }
+
+        return false;
+    }
 }
