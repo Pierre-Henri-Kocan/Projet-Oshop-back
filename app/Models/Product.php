@@ -232,10 +232,10 @@ class Product extends CoreModel
     /**
      * Méthode permettant de récupérer un enregistrement de la table Product en fonction d'un id donné
      *
-     * @param int $productId ID du produit
-     * @return Product
+     * @param int $id ID du produit
+     * @return Product|null
      */
-    public static function find($productId)
+    public static function find(int $id): ?self
     {
         // récupérer un objet PDO = connexion à la BDD
         $pdo = Database::getPDO();
@@ -244,7 +244,7 @@ class Product extends CoreModel
         $sql = '
             SELECT *
             FROM product
-            WHERE id = ' . $productId;
+            WHERE id = ' . $id;
 
         // query ? exec ?
         // On fait de la LECTURE = une récupration => query()
@@ -255,7 +255,7 @@ class Product extends CoreModel
         // si j'en avais eu plusieurs => fetchAll
         $result = $pdoStatement->fetchObject(self::class);
 
-        return $result;
+        return $result ?: null;
     }
 
     /**
@@ -263,7 +263,7 @@ class Product extends CoreModel
      *
      * @return Product[]
      */
-    public static function findAll()
+    public static function findAll(): array
     {
         $pdo = Database::getPDO();
         $sql = 'SELECT * FROM `product`';
@@ -342,5 +342,61 @@ class Product extends CoreModel
         }
 
         return false;
+    }
+
+    /**
+     * Méthode permettant de mettre à jour un enregistrement dans la table category
+     * L'objet courant doit contenir l'id, et toutes les données à ajouter : 1 propriété => 1 colonne dans la table
+     *
+     * @return bool
+     */
+    public function update(): bool
+    {
+        $matchingArray = [
+            'id' => $this->id,
+            'name' => $this->name,
+            'description' => $this->description,
+            'picture' => $this->picture,
+            'price' => $this->price,
+            'rate' => $this->rate,
+            'status' => $this->status,
+            'brand_id' => $this->brand_id,
+            'category_id' => $this->category_id,
+            'type_id' => $this->type_id,
+        ];
+
+        // Récupération de l'objet PDO représentant la connexion à la DB
+        $pdo = Database::getPDO();
+
+        $sqlSet = [];
+        foreach (array_keys($matchingArray) as $field) {
+            if ($field !== 'id') {
+                $sqlSet[] = "`$field` = :$field";
+            }
+        }
+
+        // Ecriture de la requête UPDATE
+        $sql = "
+            UPDATE `product`
+            SET " . implode(", ", $sqlSet) . ", updated_at = NOW()
+            WHERE id = :id
+        ";
+
+        // Execution de la requête de mise à jour (exec, pas query)
+        $pdoStatement = $pdo->prepare($sql);
+
+        $pdoStatement->execute($matchingArray);
+
+        // On retourne VRAI, si au moins une ligne modifié
+        return $pdoStatement->rowCount() > 0;
+    }
+
+    public function delete(): bool
+    {
+        $pdo = Database::getPDO();
+
+        $pdoStatement = $pdo->prepare("DELETE FROM `product` WHERE id = :id");
+
+        return $pdoStatement->execute(['id' => $this->id]);
     }
 }

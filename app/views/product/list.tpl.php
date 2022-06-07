@@ -30,7 +30,7 @@
                 <td><?= $product->getRate() ?>/5</td>
                 <td><?= $product->getStatus() == 1 ? 'Dispo' : 'Indispo' ?></td>
                 <td class="text-end">
-                    <a href="" class="btn btn-sm btn-warning">
+                    <a href="<?= $router->generate('Product-edit', ['id' => $product->getId()]) ?>" class="btn btn-sm btn-warning">
                         <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                     </a>
                     <!-- Example single danger button -->

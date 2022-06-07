@@ -21,12 +21,26 @@ class ProductController extends CoreController
         ]);
     }
 
-    public function add()
+    public function form(?int $id = null)
     {
-        $this->displayAddForm();
+        // Dans le cas d'un add, id vaut null grace à la valeur apr défaut renseigné
+        // dans la signature du parametre
+        // Dans le cas d'un edit, AltoRouter à passer l'id de l'url en paramètre
+        // donc $is vaut l'id de l'URL
+        if ($id !== null) {
+            $product = Product::find($id);
+
+            if ($product === false) {
+                $this->show404();
+            }
+        }
+
+        $this->displayRecordForm(
+            $id !== null ? $product : null
+        );
     }
 
-    public function create()
+    public function record(?int $id = null)
     {
         global $router;
 
@@ -58,7 +72,7 @@ class ProductController extends CoreController
         );
 
         // On va insérer notre Product en BDD
-        $product = new Product();
+        $product = $id === null ? new Product() : Product::find($id);
         $product->setName($name);
         $product->setDescription($description);
         $product->setPicture($picture);
@@ -72,8 +86,15 @@ class ProductController extends CoreController
         // Si j'ai aucune erreur
         if (empty($errors)) {
             // On enregistre en BDD
-            if ($product->insert()) {
-                header('Location: ' . $router->generate('Product-list'));
+            if ($product->save()) {
+                if ($id === null) {
+                    // Si la sauvegarde a fonctionné, on redirige vers la liste des catégories.
+                    header('Location: '. $router->generate('Product-list'));
+                }
+                else {
+                    // Si la sauvegarde a fonctionné, on redirige vers le formulaire d'édition en mode GET
+                    header('Location: '. $router->generate('Product-edit', ['id' => $product->getId()]));
+                }
             }
             else {
                 $errors[] = "La sauvegarde a échoué";
@@ -86,7 +107,7 @@ class ProductController extends CoreController
             // données proposées par l'utilisateur.
             // On transmet aussi le tableau d'erreurs, pour avertir l'utilisateur.
 
-            $this->displayAddForm($product, $errors);
+            $this->displayRecordForm($product, $errors);
         }
     }
 
@@ -174,9 +195,9 @@ class ProductController extends CoreController
      *                              Par défaut, si on donne pas de valeur, ce sera null.
      * @param array         $errors
      */
-    private function displayAddForm(?Product $product = null, array $errors = [])
+    private function displayRecordForm(?Product $product = null, array $errors = [])
     {
-        $this->show('product/add', [
+        $this->show('product/record', [
             /*
                 Avantage, pas besoin de vérifier partout dans le template que
                 $product !== null

@@ -31,7 +31,7 @@
                                 <td><?= $category->getName() ?></td>
                                 <td><?= $category->getHomeOrder() ?></td>
                                 <td class="text-end">
-                                    <a href="" class="btn btn-sm btn-warning">
+                                    <a href="<?= $router->generate('Category-edit', ['id' => $category->getId()]) ?>" class="btn btn-sm btn-warning">
                                         <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                                     </a>
                                     <!-- Example single danger button -->
@@ -77,7 +77,7 @@
                             <th scope="row"><?= $product->getId() ?></th>
                             <td><?= $product->getName() ?></td>
                             <td class="text-end">
-                                <a href="" class="btn btn-sm btn-warning">
+                                <a href="<?= $router->generate('Product-edit', ['id' => $product->getId()]) ?>" class="btn btn-sm btn-warning">
                                     <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                                 </a>
                                 <!-- Example single danger button -->

@@ -21,12 +21,22 @@ class CategoryController extends CoreController
         ]);
     }
 
-    public function add()
+    public function form(?int $id = null)
     {
-        $this->displayAddForm();
+        if ($id !== null) {
+            $category = Category::find($id);
+
+            if ($category === false) {
+                $this->show404();
+            }
+        }
+
+        $this->displayRecordForm(
+            $id !== null ? $category : null
+        );
     }
 
-    public function create()
+    public function record(?int $id = null)
     {
         global $router;
 
@@ -41,8 +51,8 @@ class CategoryController extends CoreController
 
         $errors = self::checkInputs($name, $subtitle, $picture);
 
-        // On va insérer notre Category en BDD
-        $category = new Category();
+        // Il nous faut unr instance de Category
+        $category = $id === null ? new Category() : Category::find($id);
         $category->setName($name);
         $category->setSubtitle($subtitle);
         $category->setPicture($picture);
@@ -50,8 +60,15 @@ class CategoryController extends CoreController
         // Si j'ai aucune erreur
         if (empty($errors)) {
             // On enregistre en BDD
-            if ($category->insert()) {
-                header('Location: ' . $router->generate('Category-list'));
+            if ($category->save()) {
+                if ($id === null) {
+                    // Si la sauvegarde a fonctionné, on redirige vers la liste des catégories.
+                    header('Location: '. $GLOBALS["router"]->generate('Category-list'));
+                }
+                else {
+                    // Si la sauvegarde a fonctionné, on redirige vers le formulaire d'édition en mode GET
+                    header('Location: '. $GLOBALS["router"]->generate('Category-edit', ['id' => $category->getId()]));
+                }
             }
             else {
                 $errors[] = "La sauvegarde a échoué";
@@ -64,7 +81,7 @@ class CategoryController extends CoreController
             // données proposées par l'utilisateur.
             // On transmet aussi le tableau d'erreurs, pour avertir l'utilisateur.
 
-            $this->displayAddForm($category, $errors);
+            $this->displayRecordForm($category, $errors);
         }
     }
 
@@ -100,9 +117,9 @@ class CategoryController extends CoreController
      *                                Par défaut, si on donne pas de valeur, ce sera null.
      * @param array         $errors
      */
-    private function displayAddForm(?Category $category = null, array $errors = [])
+    private function displayRecordForm(?Category $category = null, array $errors = [])
     {
-        $this->show('category/add', [
+        $this->show('category/record', [
             /*
                 Avantage, pas besoin de vérifier partout dans le template que
                 $category !== null

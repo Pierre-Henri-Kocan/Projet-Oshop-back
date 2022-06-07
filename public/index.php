@@ -71,20 +71,40 @@ $router->map(
     'GET',
     '/categories/add',
     [
-        'method' => 'add',
+        'method' => 'form',
         'controller' => CategoryController::class
     ],
     'Category-add'
 );
 
 $router->map(
+    'GET',
+    '/categories/[i:id]/edit',
+    [
+        'method' => 'form',
+        'controller' => CategoryController::class
+    ],
+    'Category-edit'
+);
+
+$router->map(
     'POST',
     '/categories/add',
     [
-        'method' => 'create',
+        'method' => 'record',
         'controller' => CategoryController::class
     ],
     'Category-create'
+);
+
+$router->map(
+    'POST',
+    '/categories/[i:id]/edit',
+    [
+        'method' => 'record',
+        'controller' => CategoryController::class
+    ],
+    'Category-update'
 );
 
 $router->map(
@@ -101,20 +121,40 @@ $router->map(
     'GET',
     '/products/add',
     [
-        'method' => 'add',
+        'method' => 'form',
         'controller' => ProductController::class
     ],
     'Product-add'
 );
 
 $router->map(
+    'GET',
+    '/products/[i:id]/edit',
+    [
+        'method' => 'form',
+        'controller' => ProductController::class
+    ],
+    'Product-edit'
+);
+
+$router->map(
     'POST',
     '/products/add',
     [
-        'method' => 'create',
+        'method' => 'record',
         'controller' => ProductController::class
     ],
     'Product-create'
+);
+
+$router->map(
+    'POST',
+    '/products/[i:id]/edit',
+    [
+        'method' => 'record',
+        'controller' => ProductController::class
+    ],
+    'Product-update'
 );
 
 /* -------------

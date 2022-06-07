@@ -95,16 +95,16 @@ class Category extends CoreModel
     /**
      * Méthode permettant de récupérer un enregistrement de la table Category en fonction d'un id donné
      *
-     * @param int $categoryId ID de la catégorie
-     * @return Category
+     * @param int $id ID de la catégorie
+     * @return Category|null
      */
-    public static function find($categoryId)
+    public static function find(int $id): ?self
     {
         // se connecter à la BDD
         $pdo = Database::getPDO();
 
         // écrire notre requête
-        $sql = 'SELECT * FROM `category` WHERE `id` =' . $categoryId;
+        $sql = 'SELECT * FROM `category` WHERE `id` =' . $id;
 
         // exécuter notre requête
         $pdoStatement = $pdo->query($sql);
@@ -113,7 +113,8 @@ class Category extends CoreModel
         $category = $pdoStatement->fetchObject(self::class);
 
         // retourner le résultat
-        return $category;
+        // return $category ? $category : null;
+        return $category ?: null;
     }
 
     /**
@@ -121,7 +122,7 @@ class Category extends CoreModel
      *
      * @return Category[]
      */
-    public static function findAll()
+    public static function findAll(): array
     {
         $pdo = Database::getPDO();
         $sql = 'SELECT * FROM `category`';
@@ -203,5 +204,55 @@ class Category extends CoreModel
         }
 
         return false;
+    }
+
+    /**
+     * Méthode permettant de mettre à jour un enregistrement dans la table category
+     * L'objet courant doit contenir l'id, et toutes les données à ajouter : 1 propriété => 1 colonne dans la table
+     *
+     * @return bool
+     */
+    public function update(): bool
+    {
+        $matchingArray = [
+            'id' => $this->id,
+            'name' => $this->name,
+            'subtitle' => $this->subtitle,
+            'picture' => $this->picture,
+        ];
+
+        // Récupération de l'objet PDO représentant la connexion à la DB
+        $pdo = Database::getPDO();
+
+        $sqlSet = [];
+        foreach (array_keys($matchingArray) as $field) {
+            if ($field !== 'id') {
+                $sqlSet[] = "`$field` = :$field";
+            }
+        }
+
+        // Ecriture de la requête UPDATE
+        $sql = "
+            UPDATE `category`
+            SET " . implode(", ", $sqlSet) . ", updated_at = NOW()
+            WHERE id = :id
+        ";
+
+        // Execution de la requête de mise à jour (exec, pas query)
+        $pdoStatement = $pdo->prepare($sql);
+
+        $pdoStatement->execute($matchingArray);
+
+        // On retourne VRAI, si au moins une ligne modifié
+        return $pdoStatement->rowCount() > 0;
+    }
+
+    public function delete(): bool
+    {
+        $pdo = Database::getPDO();
+
+        $pdoStatement = $pdo->prepare("DELETE FROM `category` WHERE id = :id");
+
+        return $pdoStatement->execute(['id' => $this->id]);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-class CoreController
+abstract class CoreController
 {
     /**
      * Méthode permettant d'afficher du code HTML en se basant sur les views
@@ -40,5 +40,15 @@ class CoreController
         require_once __DIR__ . '/../views/layout/header.tpl.php';
         require_once __DIR__ . '/../views/' . $viewName . '.tpl.php';
         require_once __DIR__ . '/../views/layout/footer.tpl.php';
+    }
+
+    /**
+     * Lève une erreur 404 en affichant la vue correspondante et stop le code PHP
+     */
+    protected function show404()
+    {
+        header('HTTP/1.0 404 Not Found');
+        $this->show('error/err404');
+        exit;
     }
 }
