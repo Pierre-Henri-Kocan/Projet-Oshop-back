@@ -4,4 +4,4 @@
     La ressource demandée n'existe pas...
 </p>
 
-<a href="<?= $router->generate('Main-home') ?>">Retour à l'accueil</a>
+<a href="<?= $router->generate('Main-home') ?>">retour à l'accueil</a>
