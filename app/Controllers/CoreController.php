@@ -2,8 +2,13 @@
 
 namespace App\Controllers;
 
+use App\Models\AppUser;
+
 abstract class CoreController
 {
+    protected const ROLE_ADMIN = "admin";
+    protected const ROLE_CATALOG_MANAGER = "catalog-manager";
+
     /**
      * Méthode permettant d'afficher du code HTML en se basant sur les views
      *
@@ -50,5 +55,55 @@ abstract class CoreController
         header('HTTP/1.0 404 Not Found');
         $this->show('error/err404');
         exit;
+    }
+
+    /**
+     * Lève une erreur 403 en affichant la vue correspondante et stop le code PHP
+     */
+    protected function show403()
+    {
+        // On envoie le header "403 Forbidden"
+        http_response_code(403);
+
+        // Puis on affiche la page d'erreur 403
+        $this->show('error/err403');
+        exit;
+    }
+
+    /**
+     * Vérifie que l'utilisateur connecté à le role necéssaire pour accèder à la
+     * page courante.
+     * Affiche une erreur 403 en cas de non autorisation.
+     *
+     * @param string[] $roles Liste des rôles ayant l'autorisation nécessaire
+     */
+    protected function checkAuthorization(array $roles)
+    {
+        // Si le user est connecté
+        if (!empty($_SESSION['connectedUser']) &&
+            $_SESSION['connectedUser'] instanceof AppUser
+        ) {
+            // Récupérer l'utilisateur connecté (en session)
+            /** @var AppUser $connectedUser */
+            $connectedUser = $_SESSION['connectedUser'];
+
+            // Puis on récupère son rôle
+            $userRole = $connectedUser->getRole();
+
+            // Est-ce que son rôle est dans la liste des rôles autorisé (ceux en paramètre)
+            if (in_array($userRole, $roles, true)) {
+                // Si oui, alors on retourne true
+                return true;
+            }
+            else {
+                // Sinon on va mettre une erreur "403 Forbidden"
+                $this->show403();
+            }
+        }
+        else {
+            // Sinon, on redirige l'utilisateur vers la page de connexion
+            global $router;
+            header('Location: ' . $router->generate('AppUser-login'));
+        }
     }
 }

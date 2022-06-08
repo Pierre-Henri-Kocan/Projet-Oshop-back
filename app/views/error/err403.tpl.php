@@ -1,7 +1,7 @@
-<h1>404 Not Found</h1>
+<h1>403 Forbidden</h1>
 
 <p>
-    La ressource demandée n'existe pas...
+    L'accès à cette page est interdit
 </p>
 
 <a href="<?= $router->generate('Main-home') ?>">Retour à l'accueil</a>
