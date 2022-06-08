@@ -9,6 +9,9 @@
 
 require_once '../vendor/autoload.php';
 
+session_start();
+
+use App\Controllers\AppUserController;
 use App\Controllers\CategoryController;
 use App\Controllers\ErrorController;
 use App\Controllers\MainController;
@@ -155,6 +158,36 @@ $router->map(
         'controller' => ProductController::class
     ],
     'Product-update'
+);
+
+$router->map(
+    'GET',
+    '/login',
+    [
+        'method' => 'login',
+        'controller' => AppUserController::class
+    ],
+    'AppUser-login'
+);
+
+$router->map(
+    'POST',
+    '/login',
+    [
+        'method' => 'loginPost',
+        'controller' => AppUserController::class
+    ],
+    'AppUser-loginPost'
+);
+
+$router->map(
+    'GET',
+    '/logout',
+    [
+        'method' => 'logout',
+        'controller' => AppUserController::class
+    ],
+    'AppUser-logout'
 );
 
 /* -------------

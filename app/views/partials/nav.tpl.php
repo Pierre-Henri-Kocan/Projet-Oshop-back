@@ -1,3 +1,7 @@
+<?php
+use App\Models\AppUser;
+?>
+
 <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="<?= $router->generate('Main-home') ?>">oShop</a>
@@ -27,6 +31,25 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Sélection Accueil</a>
+                </li>
+                <li class="nav-item">
+                    <!-- Si les informations de connexion sont dans la session,
+                        je sais que l'utilisateur est connecte et on met un lien
+                        de déconnexion -->
+                    <?php
+                    if (!empty($_SESSION['connectedUser']) &&
+                        $_SESSION['connectedUser'] instanceof AppUser
+                    ) {
+                        ?>
+                        <a class="nav-link" href="<?= $router->generate('AppUser-logout') ?>">Déconnexion</a>
+                        <?php
+                    }
+                    else {
+                        ?>
+                        <a class="nav-link" href="<?= $router->generate('AppUser-login') ?>">Connexion</a>
+                        <?php
+                    }
+                    ?>
                 </li>
             </ul>
         </div>
