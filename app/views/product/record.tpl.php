@@ -151,4 +151,6 @@ else {
     <div class="d-grid gap-2">
         <button type="submit" class="btn btn-primary mt-5">Valider</button>
     </div>
+
+    <input type="hidden" name="token" value="<?= $_SESSION['token'] ?>">
 </form>

@@ -40,7 +40,7 @@
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item"
-                                href="<?= $router->generate('Product-delete', ['id' => $product->getId()]) ?>">
+                                href="<?= $router->generate('Product-delete', ['id' => $product->getId()]) ?>?token=<?= $_SESSION['token'] ?>">
                                 Oui, je veux supprimer
                             </a>
                             <a class="dropdown-item" href="#" data-toggle="dropdown">Oups !</a>

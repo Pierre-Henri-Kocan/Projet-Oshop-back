@@ -9,6 +9,108 @@ abstract class CoreController
     protected const ROLE_ADMIN = "admin";
     protected const ROLE_CATALOG_MANAGER = "catalog-manager";
 
+    public function __construct()
+    {
+        // La variable $match contient les infos sur la route courante
+        global $match;
+
+        if ($match === false) {
+            // On sort de l'exécution du constructeur grace à return
+            return false;
+        }
+
+        // On récupère le nom de la route courante
+        // On va se servir du nom de la route demandée pour la faire coincider avec les ACL
+        $routerName = $match['name'];
+
+        // On définit la liste des permissions pour les routes nécessitant une connexion utilisateur
+        $acl = [
+            'Main-home'       => [self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER],
+            'AppUser-list'    => [self::ROLE_ADMIN],
+            'AppUser-add'     => [self::ROLE_ADMIN],
+            'AppUser-create'  => [self::ROLE_ADMIN],
+            'AppUser-edit'    => [self::ROLE_ADMIN],
+            'AppUser-update'  => [self::ROLE_ADMIN],
+            'Category-list'   => [self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER],
+            'Category-add'    => [self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER],
+            'Category-create' => [self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER],
+            'Category-edit'   => [self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER],
+            'Category-update' => [self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER],
+            'Category-delete' => [self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER],
+            'Product-list'    => [self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER],
+            'Product-add'     => [self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER],
+            'Product-create'  => [self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER],
+            'Product-edit'    => [self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER],
+            'Product-update'  => [self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER],
+            'Product-delete'  => [self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER],
+        ];
+
+        // On vérifie si notre route courante est présente dans $acl.
+        // Si c'est le cas, alors on vérifie la permission de l'utilisateur
+        if (isset($acl[$routerName])) {
+            $this->checkAuthorization($acl[$routerName]);
+        }
+        // if (array_key_exists($routerName, $acl)) {
+        //     $this->checkAuthorization($acl[$routerName]);
+        // }
+
+        //-----
+        // Token anti-CSRF
+        //-----
+        /*
+            On liste les routes pour lesquelles on va devoir faire une vérification CSRF
+            (toutes les routes qui traitent la soumission d'un formulaire et les routes de delete)
+        */
+        $routesNeedingCsrfCheck = [
+            'Category-create',
+            'Category-update',
+            'Category-delete',
+            'Product-create',
+            'Product-update',
+            'Product-delete',
+            'AppUser-create',
+            'AppUser-update',
+            'AppUser-delete',
+        ];
+
+        /*
+            Si on n'est pas sur une route traitant la soumission d'un formulaire,
+                on crée le token CSRF qu'on met en session.
+            Sinon on va vérifier que le token soumis correspond au token attendu
+                (celui en session).
+        */
+        if (!in_array($routerName, $routesNeedingCsrfCheck)) {
+            // Désormais, pour se prémunir d'une potentielle attaque de type CSRF
+            // Il faut générer un token, et pour ça on choisit la logique qu'on veut
+            $_SESSION['token'] = bin2hex(random_bytes(32));
+        }
+        else {
+            // On récupère le token en POST ou en GET
+            // Si $_POST['token'] existe, alors on le récupère; sinon si $_GET['token']
+            // existe, alors on le récupère, sinon on met une chaine vide
+            $token = $_POST['token'] ?? $_GET['token'] ?? '';
+            // $token = $_POST['token'] ?? '';
+            // if ($token === '') {
+            //     $token = $_GET['token'] ?? '';
+            // }
+
+            // On récupère le token en SESSION
+            $sessionToken = $_SESSION['token'] ?? '';
+
+            // Si les deux tokens sont différents ou que le token du formulaire est vide
+            if (empty($token) || $token !== $sessionToken) {
+                // Alors on affiche une 403
+                $this->show403();
+            }
+            else {
+                // Si tout va bien
+                // On remplace le token en session
+                // Ainsi, on ne pourra pas réutiliser ce token
+                $_SESSION['token'] = bin2hex(random_bytes(32));
+            }
+        }
+    }
+
     /**
      * Méthode permettant d'afficher du code HTML en se basant sur les views
      *
@@ -104,6 +206,7 @@ abstract class CoreController
             // Sinon, on redirige l'utilisateur vers la page de connexion
             global $router;
             header('Location: ' . $router->generate('AppUser-login'));
+            exit;
         }
     }
 }

@@ -8,9 +8,6 @@ class AppUserController extends CoreController
 {
     public function list()
     {
-        // Est-ce que t'as le droit d'être là ?
-        $this->checkAuthorization([self::ROLE_ADMIN]);
-
         $users = AppUser::findAll();
 
         $this->show('app-user/list', [
@@ -20,8 +17,6 @@ class AppUserController extends CoreController
 
     public function form(?int $id = null)
     {
-        $this->checkAuthorization([self::ROLE_ADMIN]);
-
         if ($id !== null) {
             $user = AppUser::find($id);
 
@@ -37,8 +32,6 @@ class AppUserController extends CoreController
 
     public function record(?int $id = null)
     {
-        $this->checkAuthorization([self::ROLE_ADMIN]);
-
         global $router;
 
         /*

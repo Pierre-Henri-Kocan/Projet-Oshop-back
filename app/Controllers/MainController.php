@@ -14,9 +14,6 @@ class MainController extends CoreController
      */
     public function home()
     {
-        // Est-ce que t'as le droit d'être là ?
-        $this->checkAuthorization([self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER]);
-
         $categories = Category::findWithLimit(5);
         $products = Product::findWithLimit(5);
 
