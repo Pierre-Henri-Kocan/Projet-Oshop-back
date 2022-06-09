@@ -62,106 +62,6 @@ $router->map(
 
 $router->map(
     'GET',
-    '/categories',
-    [
-        'method' => 'list',
-        'controller' => CategoryController::class
-    ],
-    'Category-list'
-);
-
-$router->map(
-    'GET',
-    '/categories/add',
-    [
-        'method' => 'form',
-        'controller' => CategoryController::class
-    ],
-    'Category-add'
-);
-
-$router->map(
-    'GET',
-    '/categories/[i:id]/edit',
-    [
-        'method' => 'form',
-        'controller' => CategoryController::class
-    ],
-    'Category-edit'
-);
-
-$router->map(
-    'POST',
-    '/categories/add',
-    [
-        'method' => 'record',
-        'controller' => CategoryController::class
-    ],
-    'Category-create'
-);
-
-$router->map(
-    'POST',
-    '/categories/[i:id]/edit',
-    [
-        'method' => 'record',
-        'controller' => CategoryController::class
-    ],
-    'Category-update'
-);
-
-$router->map(
-    'GET',
-    '/products',
-    [
-        'method' => 'list',
-        'controller' => ProductController::class
-    ],
-    'Product-list'
-);
-
-$router->map(
-    'GET',
-    '/products/add',
-    [
-        'method' => 'form',
-        'controller' => ProductController::class
-    ],
-    'Product-add'
-);
-
-$router->map(
-    'GET',
-    '/products/[i:id]/edit',
-    [
-        'method' => 'form',
-        'controller' => ProductController::class
-    ],
-    'Product-edit'
-);
-
-$router->map(
-    'POST',
-    '/products/add',
-    [
-        'method' => 'record',
-        'controller' => ProductController::class
-    ],
-    'Product-create'
-);
-
-$router->map(
-    'POST',
-    '/products/[i:id]/edit',
-    [
-        'method' => 'record',
-        'controller' => ProductController::class
-    ],
-    'Product-update'
-);
-
-$router->map(
-    'GET',
     '/login',
     [
         'method' => 'login',
@@ -189,6 +89,63 @@ $router->map(
     ],
     'AppUser-logout'
 );
+
+// Maintenant, les routes concernant le CRUD
+$crudControllers = [
+    CategoryController::class => 'categories',
+    ProductController::class => 'products',
+    AppUserController::class => 'users',
+];
+
+foreach ($crudControllers as $controller => $baseUrl) {
+    if (!class_exists($controller)) {
+        break;
+    }
+
+    $controllerShortName = substr(strrchr($controller, '\\'), 1, -10);
+
+    $addUrl  = "/$baseUrl/add";
+    $editUrl = "/$baseUrl/[i:id]/edit";
+
+    $formTarget   = ['controller' => $controller, 'method' => 'form'];
+    $recordTarget = ['controller' => $controller, 'method' => 'record'];
+
+    if (method_exists($controller, 'list')) {
+        $router->map(
+            'GET',
+            "/$baseUrl",
+            [
+                'method' => 'list',
+                'controller' => $controller
+            ],
+            "$controllerShortName-list"
+        );
+    }
+
+    // Les routes d'affichage de formulaire d'ajout ou de modif
+    if (method_exists($controller, 'form')) {
+        $router->map('GET', $addUrl, $formTarget, "$controllerShortName-add");
+        $router->map('GET', $editUrl, $formTarget, "$controllerShortName-edit");
+    }
+
+    // Les routes de traitement des formulaires soumis d'ajout ou de modif
+    if (method_exists($controller, 'record')) {
+        $router->map('POST', $addUrl, $recordTarget, "$controllerShortName-create");
+        $router->map('POST', $editUrl, $recordTarget, "$controllerShortName-update");
+    }
+
+    if (method_exists($controller, 'delete')) {
+        $router->map(
+            'GET',
+            "/$baseUrl/[i:id]/delete",
+            [
+                'method' => 'delete',
+                'controller' => $controller
+            ],
+            "$controllerShortName-delete"
+        );
+    }
+}
 
 /* -------------
 --- DISPATCH ---

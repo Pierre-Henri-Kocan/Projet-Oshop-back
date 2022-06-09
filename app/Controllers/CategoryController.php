@@ -14,6 +14,8 @@ class CategoryController extends CoreController
      */
     public function list()
     {
+        $this->checkAuthorization([self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER]);
+
         $categories = Category::findAll();
 
         $this->show('category/list', [
@@ -23,6 +25,8 @@ class CategoryController extends CoreController
 
     public function form(?int $id = null)
     {
+        $this->checkAuthorization([self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER]);
+
         if ($id !== null) {
             $category = Category::find($id);
 
@@ -38,6 +42,8 @@ class CategoryController extends CoreController
 
     public function record(?int $id = null)
     {
+        $this->checkAuthorization([self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER]);
+
         global $router;
 
         /*
@@ -83,6 +89,24 @@ class CategoryController extends CoreController
 
             $this->displayRecordForm($category, $errors);
         }
+    }
+
+    public function delete(int $id)
+    {
+        $this->checkAuthorization([self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER]);
+
+        global $router;
+
+        // L'id présent dans l'url se retrouve en paramètre ici
+        // On utilise $id pour retrouver la catégorie concernée en DB
+        // On obtient un objet de la classe Category
+        $category = Category::find($id);
+
+        // On applique la méthode delete() pour demander la suppression en DB de cet objet
+        $category->delete();
+
+        // header("Refresh:0");
+        header('Location: ' . $router->generate('Category-list'));
     }
 
     /**

@@ -16,6 +16,8 @@ class ProductController extends CoreController
      */
     public function list()
     {
+        $this->checkAuthorization([self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER]);
+
         $this->show('product/list', [
             'products' => Product::findAll()
         ]);
@@ -23,6 +25,8 @@ class ProductController extends CoreController
 
     public function form(?int $id = null)
     {
+        $this->checkAuthorization([self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER]);
+
         // Dans le cas d'un add, id vaut null grace à la valeur apr défaut renseigné
         // dans la signature du parametre
         // Dans le cas d'un edit, AltoRouter à passer l'id de l'url en paramètre
@@ -42,6 +46,8 @@ class ProductController extends CoreController
 
     public function record(?int $id = null)
     {
+        $this->checkAuthorization([self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER]);
+
         global $router;
 
         /*
@@ -109,6 +115,23 @@ class ProductController extends CoreController
 
             $this->displayRecordForm($product, $errors);
         }
+    }
+
+    public function delete(int $id)
+    {
+        $this->checkAuthorization([self::ROLE_ADMIN, self::ROLE_CATALOG_MANAGER]);
+
+        global $router;
+
+        // L'id présent dans l'url se retrouve en paramètre ici
+        // On utilise $id pour retrouver la catégorie concernée en DB
+        // On obtient un objet de la classe Product
+        $product = Product::find($id);
+
+        // On applique la méthode delete() pour demander la suppression en DB de cet objet
+        $product->delete();
+
+        header('Location: ' . $router->generate('Product-list'));
     }
 
     /**

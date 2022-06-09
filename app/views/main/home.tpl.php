@@ -36,11 +36,14 @@
                                     </a>
                                     <!-- Example single danger button -->
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa fa-trash-o" aria-hidden="true"></i>
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#">Oui, je veux supprimer</a>
+                                            <a class="dropdown-item"
+                                               href="<?= $router->generate('Category-delete', ['id' => $category->getId()]) ?>">
+                                               Oui, je veux supprimer
+                                            </a>
                                             <a class="dropdown-item" href="#" data-toggle="dropdown">Oups !</a>
                                         </div>
                                     </div>
@@ -82,11 +85,14 @@
                                 </a>
                                 <!-- Example single danger button -->
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class="fa fa-trash-o" aria-hidden="true"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#">Oui, je veux supprimer</a>
+                                        <a class="dropdown-item"
+                                           href="<?= $router->generate('Product-delete', ['id' => $product->getId()]) ?>">
+                                           Oui, je veux supprimer
+                                        </a>
                                         <a class="dropdown-item" href="#" data-toggle="dropdown">Oups !</a>
                                     </div>
                                 </div>

@@ -37,8 +37,8 @@ class Category extends CoreModel
 
     public function setSubtitle(?string $subtitle): self
     {
-        return $this;
         $this->subtitle = $subtitle;
+        return $this;
     }
 
     public function getPicture(): ?string
@@ -48,8 +48,8 @@ class Category extends CoreModel
 
     public function setPicture(?string $picture): self
     {
-        return $this;
         $this->picture = $picture;
+        return $this;
     }
 
     public function getHomeOrder(): int
