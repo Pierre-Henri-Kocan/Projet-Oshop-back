@@ -90,6 +90,26 @@ $router->map(
     'AppUser-logout'
 );
 
+$router->map(
+    'GET',
+    '/categories/home-order',
+    [
+        'method' => 'homeOrder',
+        'controller' => CategoryController::class
+    ],
+    'Category-homeOrder'
+);
+
+$router->map(
+    'POST',
+    '/categories/home-order',
+    [
+        'method' => 'homeOrderPost',
+        'controller' => CategoryController::class
+    ],
+    'Category-homeOrderPost'
+);
+
 // Maintenant, les routes concernant le CRUD
 $crudControllers = [
     CategoryController::class => 'categories',

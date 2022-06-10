@@ -101,6 +101,49 @@ class CategoryController extends CoreController
         header('Location: ' . $router->generate('Category-list'));
     }
 
+    public function homeOrder()
+    {
+        $this->displayHomeOrderForm();
+    }
+
+    public function homeOrderPost()
+    {
+        global $router;
+
+        // Dans les <select> de la page précédente, tous les attributs name valent
+        // «emplacement[]». Ça va donner une indication à PHP de créer une clé
+        // `emplacement` dans $_POST. La valeur de $_POST['emplacement'] est un
+        // tableau indexé dont chacune des valeurs est l'id de chacune des
+        // catégories sélectionnées dans le formulaire
+        $categoriesIdInOrder = filter_input(INPUT_POST, 'emplacement', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+
+        $errors = $this->checkEmplacements($categoriesIdInOrder);
+
+        if (empty($errors)) {
+            // On va faire notre enregistrement en DB
+            // On a créé une méthode statique dans Category qui définit les home_order en DB
+            // On lui envoie la liste des id sélectionnés depuis le formulaire
+            // Cette liste est un simple tableau du genre : [5, 7, 12, 3, 19]
+            // contenant les id des catégories
+            if (Category::defineHomepage($categoriesIdInOrder)) {
+                // Rediriger vers le formulaire en GET
+                header('Location: ' . $router->generate('Category-homeOrder'));
+            }
+            else {
+                $errors[] = "Échec lors de l'enregistrement";
+            }
+        }
+
+        // S'il y a au moins une erreur dans les données ou à l'enregistrement
+        if (!empty($errors)) {
+            // On réaffiche le formulaire, mais pré-rempli avec les (mauvaises)
+            // données proposées par l'utilisateur.
+            // On transmet aussi le tableau d'erreurs, pour avertir l'utilisateur.
+
+            $this->displayHomeOrderForm($errors);
+        }
+    }
+
     /**
      * @param mixed $name
      * @param mixed $subtitle
@@ -155,6 +198,48 @@ class CategoryController extends CoreController
                         ETC
             */
             'category' => $category ?? new Category(),
+            'errors' => $errors,
+        ]);
+    }
+
+    /**
+     * Vérifie la liste des emplacement passé en post
+     *
+     * @param array $emplacements
+     *
+     * @return array
+     */
+    private function checkEmplacements(array $emplacements): array
+    {
+        $errors = [];
+        if (!is_array($emplacements)) {
+            $errors[] = "Liste des emplacements invalide";
+        }
+        else {
+            foreach ($emplacements as $key => $value) {
+                if (!ctype_digit($value)) {
+                    $emplacementPosition = $key + 1;
+
+                    $errors[] = "L'emplacement $emplacementPosition a un id invalide";
+                }
+            }
+        }
+
+        // On devrait aussi vérifier qu'on n'a pas la même catégorie à 2 emplacements
+        // différents et que les id existent bien en DB et qu'on a bien 5 emplacements
+        // remplis, etc
+
+        return $errors;
+    }
+
+    private function displayHomeOrderForm(array $errors = [])
+    {
+        // On récupère bien toutes les catégories car on va en avoir besoin pour
+        // remplir nos listes déroulantes
+        $categories = Category::findAll();
+
+        $this->show('category/home-order', [
+            'categories' => $categories,
             'errors' => $errors,
         ]);
     }

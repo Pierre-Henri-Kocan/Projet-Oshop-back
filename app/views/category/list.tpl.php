@@ -3,6 +3,7 @@
 ?>
 
 <a href="<?= $router->generate('Category-add') ?>" class="btn btn-success float-end">Ajouter</a>
+<a href="<?= $router->generate('Category-homeOrder') ?>" class="btn btn-success float-end me-2">Catégories en page d'accueil</a>
 
 <h2>Liste des catégories</h2>
 

@@ -30,7 +30,7 @@ use App\Models\AppUser;
                     <a class="nav-link" href="#">Tags</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Sélection Accueil</a>
+                    <a class="nav-link" href="<?= $router->generate('Category-homeOrder') ?>">Sélection Accueil</a>
                 </li>
                 <li class="nav-item">
                     <!-- Si les informations de connexion sont dans la session,

@@ -96,4 +96,37 @@ class Category extends CoreModel
 
         return $categories;
     }
+
+    /**
+     * Enregistre l'ordre des catégories sur la homepage
+     *
+     * @param int[] $categoriesIdInOrder Liste des id de catégories, dans l'ordre
+     *                                   qu'on veut enregistrer pour la homepage
+     *
+     * @return bool
+     */
+    public static function defineHomepage(array $categoriesIdInOrder): bool
+    {
+        // Récupération de l'objet PDO représentant la connexion à la DB
+        $pdo = Database::getPDO();
+
+        // Notre variable sql contient 6 UPDATE
+        // On peut faire plusieurs requêtes en une seule fois en les séparant par
+        // des point-virgules «;»
+        // Contrairement à toutes les requêtes qu'on a faites en S06, on n'utilise
+        // pas de paramètres nommés mais plutot des paramètres identifiés par un
+        // simple point d'interrogation «?»
+        $sql = "
+            UPDATE `category` SET home_order = 0;
+            UPDATE `category` SET home_order = 1 WHERE id = ?;
+            UPDATE `category` SET home_order = 2 WHERE id = ?;
+            UPDATE `category` SET home_order = 3 WHERE id = ?;
+            UPDATE `category` SET home_order = 4 WHERE id = ?;
+            UPDATE `category` SET home_order = 5 WHERE id = ?;
+        ";
+
+        $pdoStatement = $pdo->prepare($sql);
+
+        return $pdoStatement->execute(array_values($categoriesIdInOrder));
+    }
 }
